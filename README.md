@@ -18,7 +18,7 @@ Not installable for now since CGen is still not release
 Contributions will be open when CGen is released
 
 # Credits
-<a href="bichanna">Main language developer - bichanna</a>
+<a href="https://github.com/bichanna">Main language developer - bichanna</a>
 
 # Other implementations
 <a href="https://github.com/Gen-Lang/Gen">Official Gen Implementation</a>
