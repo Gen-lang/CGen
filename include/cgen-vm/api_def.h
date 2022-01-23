@@ -1,5 +1,5 @@
-#ifndef __64BIT_VPC_3090_1X_API_DEF
-#define __64BIT_VPC_3090_1X_API_DEF
+#ifndef __CGEN_VM_API_DEF
+#define __CGEN_VM_API_DEF
 
 #ifdef CGEN_VM_WIN32_BUILD
 #ifndef CGEN_VM_WIN32_EXPORT
