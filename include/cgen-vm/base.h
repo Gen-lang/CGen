@@ -54,7 +54,7 @@ typedef struct CGEN_VM_STRUCT
 	uint16_t* registers_16bit; /* CGen VM 16 bit registers */
 	uint32_t* registers_32bit; /* CGen VM 32 bit registers */
 	unsigned long long* registers_64bit; /* CGen VM 64 bit registers */
-	int(*interrupts[256])(CGEN_VM*); /* CGen VM 256 Interrupts */
+	int(*interrupts[256])(struct CGEN_VM_STRUCT*); /* CGen VM 256 Interrupts */
 } CGEN_VM;
 
 #endif

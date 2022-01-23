@@ -3,6 +3,30 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/* Opcodes:
+ * JMP  = 0
+ * NOP  = 1
+ * EXIT = 2
+ * ADD  = 3
+ * MOV  = 4
+ * RMOD = 5
+ * SUB  = 6
+ * MUL  = 7
+ * DIV  = 8
+ * AND  = 9
+ * OR   = 10
+ * XOR  = 11
+ * NOT  = 12
+ * SHR  = 13
+ * SHL  = 14
+ * SMEM = 15
+ * GMEM = 16
+ * CMP  = 17
+ * INT  = 18
+ * MOD  = 19
+ * 
+ */ 
+
 static inline unsigned char CGEN_VM_to_8bit(unsigned char* x)
 {
     return x[0];
@@ -1751,6 +1775,90 @@ int CGEN_VM_exec_instr(CGEN_VM* instance)
             return -1;
         }
         return instance->interrupts[instance->registers_8bit[0]](instance);
+    }
+    /* MOD */
+    else if(opcode == 0x13)
+    {
+        #define instr_imm reg(reg0) = reg(reg0) % imm(imm0)
+        #define instr_reg reg(reg0) = reg(reg0) % reg(reg1)
+        if(instance->register_mode == 0)
+        {
+	        #define reg(x) (*(unsigned char*)x)
+	        #define imm(x) CGEN_VM_to_8bit(x)
+            if(imm_flag != 0)
+            {
+                instr_imm;
+            }
+            else
+            {
+                instr_reg;
+            }
+            #undef reg
+            #undef imm
+        }
+	    else if(instance->register_mode == 1)
+	    {
+            #define reg(x) (*(unsigned long long*)x)
+            #define imm(x) CGEN_VM_to_64bit(x)
+	        if(imm_flag != 0)
+	        {
+                instr_imm;
+	        }
+            else
+            {
+                instr_reg;
+            }
+            #undef reg
+            #undef imm
+	    }
+        else if(instance->register_mode == 2)
+	    {
+            #define reg(x) (*(uint16_t*)x)
+            #define imm(x) CGEN_VM_to_16bit(x)
+	        if(imm_flag != 0)
+	        {
+                instr_imm;
+	        }
+            else
+            {
+                instr_reg;
+            }
+            #undef reg
+            #undef imm
+	    }
+        else if(instance->register_mode == 3)
+	    {
+            #define reg(x) (*(uint32_t*)x)
+            #define imm(x) CGEN_VM_to_32bit(x)
+	        if(imm_flag != 0)
+	        {
+                instr_imm;
+	        }
+            else
+            {
+                instr_reg;
+            }
+            #undef reg
+            #undef imm
+	    }
+        else
+        {
+            #define reg(x) (*(unsigned char*)x)
+            #define imm(x) CGEN_VM_to_8bit(x)
+	        if(imm_flag != 0)
+	        {
+                instr_imm;
+	        }
+            else
+            {
+                instr_reg;
+            }
+            #undef reg
+            #undef imm
+        }
+        #undef instr_imm
+        #undef instr_reg
+        return 1;
     }
     return 0;
 }
