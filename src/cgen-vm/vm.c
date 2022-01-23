@@ -68,6 +68,15 @@ int CGEN_VM_init(unsigned char* program,
         free(instance.registers_32bit);
         return -1;
     }
+    if(smalloc(&(instance.interrupts), 256) < 0)
+    {
+        free(instance.memory);
+        free(instance.registers_8bit);
+        free(instance.registers_16bit);
+        free(instance.registers_32bit);
+        free(instance.registers_64bit);
+        return -1;
+    }
     unsigned long long ci = 0;
     for(unsigned long long i = program_addr; i < (program_size + program_addr); i++)
     {
@@ -86,6 +95,9 @@ void CGEN_VM_free(CGEN_VM* instance)
     free(instance->memory);
     free(instance->registers_8bit);
     free(instance->registers_64bit);
+    free(instance->registers_32bit);
+    free(instance->registers_16bit);
+    free(instance->interrupts);
     #ifdef CGEN_VM_ZERO_INSTANCE
     instance->memory_size = 0;
     instance->program_memory_address = 0;

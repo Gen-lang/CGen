@@ -1774,7 +1774,8 @@ int CGEN_VM_exec_instr(CGEN_VM* instance)
         {
             return -1;
         }
-        return instance->interrupts[instance->registers_8bit[0]](instance);
+        int(*interrupt)(CGEN_VM*) = instance->interrupts[(instance->registers_8bit[0])];
+        return interrupt(instance);
     }
     /* MOD */
     else if(opcode == 0x13)

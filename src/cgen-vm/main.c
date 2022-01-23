@@ -32,9 +32,10 @@
 #define R1(r) r << 2
 
 #define MiB(x) (1024 * 1024 * x)
+#define KiB(x) (1024 * x)
 
-#define VM_CYCLE_MAX MiB(1)
-#define VM_DEBUG_CYCLE 50
+#define VM_CYCLE_MAX KiB(1)
+#define VM_DEBUG_CYCLE 1
 
 void debug_registers(CGEN_VM* instance)
 {
@@ -62,6 +63,12 @@ void debug_registers(CGEN_VM* instance)
     printf("\n------ CGen Register Information End ------\n\n");
 }
 
+int vm_int_pru(CGEN_VM* vm)
+{
+    printf("%llu\n", vm->registers_64bit[vm->registers_8bit[1]]);
+    return 1;
+}
+
 int vm_debug_exec(unsigned char* p, unsigned long long psize, const char* test_name)
 {
     int res = 0;
@@ -72,8 +79,9 @@ int vm_debug_exec(unsigned char* p, unsigned long long psize, const char* test_n
     if(res < 0)
     {
         printf("Error while initializing CGen %s\n", test_name);
-        return 1;
+        return -1;
     }
+    vm.interrupts[0] = (CGEN_INTERRUPT)&vm_int_pru;
     while(1)
     {
         printf("CGen VM Cycle: #%d\n", cycle);
@@ -98,22 +106,53 @@ int vm_debug_exec(unsigned char* p, unsigned long long psize, const char* test_n
         }
         cycle += 1;
     }
+    CGEN_VM_free(&vm);
     printf("---- CGen %s Done ----\n\n", test_name);
 }
 
 int main()
 {
-    int res = 0;
-    int cycle = 1;
     unsigned char p0[] = {
-        MOV | REG | IMM, R0(7), 0x01, // Without this, the JMP instruction won't work
-        RMOD | IMM, 0x01, // rmod 1
-        JMP | IMM, 0x05, 
+        /*
+         * Assembly version:
+         * mov r8_cr, 0x01
+         * rmod 0x01
+         * jmp 0x05
+         * exit
+         */
+        MOV | REG | IMM, R0(7), 0x01, // mov r8_cr, 0x01
+        RMOD | IMM, 0x01, // rmod 0x01
+        JMP | IMM, 0x05,  // jmp 0x05
         0x00, 0x00, 0x00, 0x00, 
         0x00, 0x00, 0x00,
-        EXIT, // Doesn't exit
+        EXIT, // exit
     };
-    vm_test(p0, 15, "Test 1 : Infinite Loop");
+    vm_debug_exec(p0, 15, "Test 1 : Infinite Loop");
     
+    unsigned char p1[] = {
+        /*
+         * Assembly version:
+         * rmod 0x01
+         * mov r64_ax, 0xFF
+         * rmod 0x00
+         * mov r8_a, 0
+         * mov r8_b, 4
+         * int
+         * exit
+         */
+        RMOD | IMM, 0x01, // rmod 0x01
+        MOV | REG | IMM, R0(4), // mov r64_ax, 0xFF
+        0xFF, 0x00,
+        0x00, 0x00,
+        0x00, 0x00,
+        0x00, 0x00,
+        RMOD | REG, r0(0), // rmod 0x00
+        MOV, // mov r8_a, 0
+        MOV | REG | IMM, R0(1), 4, // mov r8_b, 4
+        INT, // int
+        EXIT, // exit
+    };
+    vm_debug_exec(p1, 27, "Test 2 : Interrupt");
+
     return 0;
 }
