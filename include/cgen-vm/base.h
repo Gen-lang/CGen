@@ -32,8 +32,8 @@
  *   	r64_d  - 64bit register 				#4
  *
  *   Special 64bit registers:
- *   	r64_pc - 64bit program counter 			#5
- *   	r64_ax - accumulator register 			#6
+ *   	r64_pc - 64bit program counter 			#6
+ *   	r64_ax - accumulator register 			#5
  *   
  *   Secondary 64bit registers:
  *   	r64_a2 - 64bit register					#7

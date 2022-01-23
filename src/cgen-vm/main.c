@@ -31,8 +31,10 @@
 #define R0(r) r << 5
 #define R1(r) r << 2
 
-#define VM_CYCLE_MAX 1000
-#define VM_DEBUG_CYCLE 100
+#define MiB(x) (1024 * 1024 * x)
+
+#define VM_CYCLE_MAX MiB(1)
+#define VM_DEBUG_CYCLE 50
 
 void debug_registers(CGEN_VM* instance)
 {
@@ -60,7 +62,7 @@ void debug_registers(CGEN_VM* instance)
     printf("\n------ CGen Register Information End ------\n\n");
 }
 
-int vm_test(unsigned char* p, unsigned long long psize, const char* test_name)
+int vm_debug_exec(unsigned char* p, unsigned long long psize, const char* test_name)
 {
     int res = 0;
     int cycle = 1;
@@ -104,12 +106,12 @@ int main()
     int res = 0;
     int cycle = 1;
     unsigned char p0[] = {
-        MOV | REG | IMM, R0(7), 0x01,
+        MOV | REG | IMM, R0(7), 0x01, // Without this, the JMP instruction won't work
         RMOD | IMM, 0x01, // rmod 1
         JMP | IMM, 0x05, 
         0x00, 0x00, 0x00, 0x00, 
         0x00, 0x00, 0x00,
-        EXIT, // Doesn't really exit
+        EXIT, // Doesn't exit
     };
     vm_test(p0, 15, "Test 1 : Infinite Loop");
     
