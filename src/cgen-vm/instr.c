@@ -1743,5 +1743,14 @@ int CGEN_VM_exec_instr(CGEN_VM* instance)
         #undef instr_reg
         return 1;
     }
+    /* INT */
+    else if(opcode == 0x12)
+    {
+        if(instance->register_mode != 0)
+        {
+            return -1;
+        }
+        return instance->interrupts[instance->registers_8bit[0]](instance);
+    }
     return 0;
 }

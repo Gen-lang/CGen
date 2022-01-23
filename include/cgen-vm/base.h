@@ -41,17 +41,20 @@
  */
 
 
-/* 64bit VPC 3090 1X Instance */
+;
+
+/* CGen VM structure */
 typedef struct CGEN_VM_STRUCT
 {
-	unsigned char* memory; /* VM memory */ 
-	unsigned long long memory_size; /* VM memory size */
-	unsigned long long program_memory_address; /* VM program memory address */
-	unsigned char register_mode; /* VM register mode | 0 = 8 bit mode, 1 = 64 bit mode, 2 = 16 bit mode, 3 = 32 bit mode */
-	unsigned char* registers_8bit; /* VM 8 bit registers */
-	uint16_t* registers_16bit; /* VM 16 bit registers */
-	uint32_t* registers_32bit; /* VM 32 bit registers */
-	unsigned long long* registers_64bit; /* VM 64 bit registers */
+	unsigned char* memory; /* CGen VM memory */ 
+	unsigned long long memory_size; /* CGen VM memory size */
+	unsigned long long program_memory_address; /* CGen VM program memory address */
+	unsigned char register_mode; /* CGen VM register mode | 0 = 8 bit mode, 1 = 64 bit mode, 2 = 16 bit mode, 3 = 32 bit mode */
+	unsigned char* registers_8bit; /* CGen VM 8 bit registers */
+	uint16_t* registers_16bit; /* CGen VM 16 bit registers */
+	uint32_t* registers_32bit; /* CGen VM 32 bit registers */
+	unsigned long long* registers_64bit; /* CGen VM 64 bit registers */
+	int(*interrupts[256])(CGEN_VM*); /* CGen VM 256 Interrupts */
 } CGEN_VM;
 
 #endif
