@@ -1,106 +1,92 @@
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include <cgen-vm/base.h>
 #include <cgen-vm/vm.h>
-#include <stdlib.h>
-#include <stddef.h>
 
-int smalloc(void** ptr, size_t size)
-{
-    *ptr = malloc(size);
-    if(*ptr == NULL)
-    {
-        return -1;
-    }
-    return 0;
-}
+#ifdef CGEN_VM_ZERO
+#include <string.h>
+#endif
 
-int srealloc(void* ptr, size_t size)
+int CGen_VM_init(uint8_t* p, uint64_t p_size, uint64_t p_start, uint64_t mem_size, CGen_VM* vm)
 {
-    ptr = realloc(ptr, size);
-    if(ptr == NULL)
+    if((p_start + p_size) > mem_size)
     {
         return -1;
     }
-    return 0;
-}
-
-int CGEN_VM_init(unsigned char* program,
-                       unsigned long long program_size,
-                       unsigned long long program_addr,
-                       unsigned long long memory_size,
-                       CGEN_VM* vpc)
-{
-    if(program_size == 0)
+    vm->mem = malloc((size_t)mem_size);
+    vm->regs_8bit = malloc((size_t)16);
+    vm->regs_16bit = malloc((size_t)32);
+    vm->regs_32bit = malloc((size_t)64);
+    vm->regs_64bit = malloc((size_t)128);
+    vm->interrupts = malloc((size_t)256 * sizeof(int(**)(CGen_VM*)));
+    if(vm->mem == NULL)
     {
         return -1;
     }
-    if(memory_size < (program_size + program_addr))
+    if(vm->regs_8bit == NULL)
     {
+        free(vm->mem);
         return -1;
     }
-    CGEN_VM instance;
-    if(smalloc(&instance.memory, (size_t)memory_size) < 0)
+    if(vm->regs_16bit == NULL)
     {
+        free(vm->mem);
+        free(vm->regs_8bit);
         return -1;
     }
-    if(smalloc(&instance.registers_8bit, 8) < 0)
+    if(vm->regs_32bit == NULL)
     {
-        free(instance.memory);
+        free(vm->mem);
+        free(vm->regs_8bit);
+        free(vm->regs_16bit);
         return -1;
     }
-    if(smalloc(&instance.registers_16bit, 16) < 0)
+    if(vm->regs_64bit == NULL)
     {
-        free(instance.memory);
-        free(instance.registers_8bit);
+        free(vm->mem);
+        free(vm->regs_8bit);
+        free(vm->regs_16bit);
+        free(vm->regs_32bit);
         return -1;
     }
-    if(smalloc(&instance.registers_32bit, 32) < 0)
+    if(vm->interrupts == NULL)
     {
-        free(instance.memory);
-        free(instance.registers_8bit);
-        free(instance.registers_16bit);
-        return 0;
-    }
-    if(smalloc(&instance.registers_64bit, 64) < 0)
-    {
-        free(instance.memory);
-        free(instance.registers_8bit);
-        free(instance.registers_16bit);
-        free(instance.registers_32bit);
+        free(vm->mem);
+        free(vm->regs_8bit);
+        free(vm->regs_16bit);
+        free(vm->regs_32bit);
+        free(vm->regs_64bit);
         return -1;
     }
-    if(smalloc(&(instance.interrupts), 256) < 0)
+    uint64_t ci = 0;
+    for(uint64_t i = p_start; i < (p_size + p_start); i++)
     {
-        free(instance.memory);
-        free(instance.registers_8bit);
-        free(instance.registers_16bit);
-        free(instance.registers_32bit);
-        free(instance.registers_64bit);
-        return -1;
-    }
-    unsigned long long ci = 0;
-    for(unsigned long long i = program_addr; i < (program_size + program_addr); i++)
-    {
-        instance.memory[i] = program[ci];
+        vm->mem[i] = p[ci];
         ci += 1;
     }
-    instance.memory_size = memory_size;
-    instance.program_memory_address = program_addr;
-    instance.registers_64bit[5] = program_addr;
-    instance.register_mode = 0;
-    *vpc = instance;
+    #ifdef CGEN_VM_ZERO
+    memset(vm->regs_8bit, (int)((unsigned char)0),16);
+    memset(vm->regs_64bit, (int)((unsigned char)0),128);
+    memset(vm->regs_32bit, (int)((unsigned char)0),64);
+    memset(vm->regs_16bit, (int)((unsigned char)0),32);
+    #endif
+    vm->reg_mode = (uint8_t)0;
+    vm->mem_size = mem_size;
+    vm->regs_64bit[5] = p_start;
     return 0;
 }
-void CGEN_VM_free(CGEN_VM* instance)
+
+void CGen_VM_free(CGen_VM* vm)
 {
-    free(instance->memory);
-    free(instance->registers_8bit);
-    free(instance->registers_64bit);
-    free(instance->registers_32bit);
-    free(instance->registers_16bit);
-    free(instance->interrupts);
-    #ifdef CGEN_VM_ZERO_INSTANCE
-    instance->memory_size = 0;
-    instance->program_memory_address = 0;
-    instance->register_mode = 0;
+    free(vm->mem);
+    free(vm->regs_8bit);
+    free(vm->regs_16bit);
+    free(vm->regs_32bit);
+    free(vm->regs_64bit);
+    free(vm->interrupts);
+    #ifdef CGEN_VM_ZERO
+    vm->reg_mode = (uint8_t)0;
+    vm->mem_size = (uint64_t)0;
     #endif
 }

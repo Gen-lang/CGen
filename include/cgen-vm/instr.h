@@ -1,8 +1,9 @@
-#ifndef __CGEN_VM_INSTR
-#define __CGEN_VM_INSTR
-#include "api_def.h"
-#include "base.h"
+#ifndef __CGEN_INCLUDE_INSTR
+#define __CGEN_INCLUDE_INSTR
 
-CGEN_VM_METHOD extern int CGEN_VM_exec_instr(CGEN_VM* instance);
+#include "base.h"
+#include "api-def.h"
+
+CGEN_VM_DEF int CGen_VM_exec_instr(CGen_VM* vm);
 
 #endif
