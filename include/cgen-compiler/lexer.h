@@ -1,6 +1,7 @@
 #ifndef __CGEN_COMPILER_LEXER
 #define __CGEN_COMPILER_LEXER
 
-/* Still empty */
+extern const char DIGITS[];
+extern const char LETTERS[];
 
 #endif
