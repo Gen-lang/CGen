@@ -3,6 +3,5 @@
 
 extern const char DIGITS[];
 extern const char LETTERS[];
-extern const char LETTERS_AND_DIGITS[];
 
 #endif
