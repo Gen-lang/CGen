@@ -1,21 +1,17 @@
 # CGen(WIP)
-A Gen implementation in C.
-</br>
-With memory efficiency, portability and speed in mind.
-
-# Goals
-  - A good lexer
-  - A good AST generator
-  - A bytecode optimizer
-  - A fast and efficient portable vm
-  - Embeddable API
-  - Portability
+### NOTE: CGen will no longer maintained. 
+As the creator of Gen already works on 
+<br>
+something new and the official Gen 
+<br>
+implementation is also not maintained 
+<br>
+anymore.
+<br><br>
+An unmaintained Gen implementation in C. 
 
 # Installation
-Not installable for now since CGen is still not release
-
-# Contributions
-Contributions will be open when CGen is released
+Not installable for now since CGen is still not released nor maintained
 
 # Credits
 <a href="https://github.com/bichanna">Main language developer - bichanna</a>
